@@ -1,0 +1,65 @@
+---
+version: "2.1"
+
+volumes:
+
+  # Internal named volumes.
+  # These are not accessible outside of the docker host and are maintained by
+  # Docker.
+  mysql_data:
+
+  # External named volumes.
+  # These are intended to be accessible beyond the docker host (e.g. via NFS).
+  # They use bind mounts to mount a specific "local" directory on the docker
+  # host - the expectation being that these directories are actually mounted
+  # filesystems from elsewhere.
+  dativebase_old_store:
+    external:
+      name: "dativebase-old-store"
+
+
+services:
+
+  mysql:
+    image: "percona:5.6"
+    user: "old"
+    environment:
+      MYSQL_ROOT_PASSWORD: "demo"
+    volumes:
+      - "mysql_data:/var/lib/mysql"
+    expose:
+      - "3306"
+    ports:
+      - "62001:3306"
+
+  nginx:
+    image: "nginx:stable-alpine"
+    volumes:
+      - "./etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
+      - "./etc/nginx/conf.d/dativebase.conf:/etc/nginx/conf.d/dativebase.conf:ro"
+      - "./etc/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro"
+    expose:
+      - "8000"
+    ports:
+      - "62081:8000"
+
+  old:
+    build:
+      context: "../src/old"
+      dockerfile: "Dockerfile"
+    environment:
+        OLD_DB_RDBMS: "mysql"
+        OLD_DB_USER: "old"
+        OLD_DB_PASSWORD: "demo"
+        OLD_DB_HOST: "mysql"
+        OLD_DB_PORT: "3306"
+        OLD_NAME_TESTS: "oldtests"
+        OLD_PERMANENT_STORE: "/var/old/store"
+        OLD_SESSION_LOCK_DIR: "/var/old/data/sessions/lock"
+        OLD_PORT: "6543"
+    volumes:
+      - "dativebase_old_store:/var/old/store:rw"
+    expose:
+      - "8000"
+    depends_on:
+      - mysql

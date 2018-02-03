@@ -40,7 +40,7 @@ with something like::
 Remember that you will have to log out and back in for this to take effect.
 
 .. warning:: Adding a user to the "docker" group will grant the ability to run
-   containers which can be used to obtain root privileges on the docker host. 
+   containers which can be used to obtain root privileges on the docker host.
    Refer to `docker daemon attack surface`_ for more information.
 
 
@@ -76,7 +76,7 @@ the following command from the compose directory::
 Web UIs
 ================================================================================
 
-- Dative: http://127.0.0.1:62080/
+- Dative: http://127.0.0.1:61080/
 
 
 Source code auto-reloading
@@ -129,15 +129,15 @@ This would give us one service but three containers.
 Ports
 ================================================================================
 
-+-----------------------------------------+----------------+------------ +
++-----------------------------------------+----------------+-------------+
 | Service                                 | Container port | Host port   |
 +=========================================+================+=============+
-| mysql                                   | `tcp/3306`     | `tcp/62001` |
-+-----------------------------------------+----------------+------------ +
-| nginx > OLD                             | `tcp/80`       | `tcp/62080` |
-+-----------------------------------------+----------------+------------ +
-| nginx > Dative                          | `tcp/8000`     | `tcp/62081` |
-+-----------------------------------------+----------------+------------ +
+| mysql                                   | `tcp/3306`     | `tcp/61001` |
++-----------------------------------------+----------------+-------------+
+| nginx > OLD                             | `tcp/80`       | `tcp/61080` |
++-----------------------------------------+----------------+-------------+
+| nginx > Dative                          | `tcp/8000`     | `tcp/61081` |
++-----------------------------------------+----------------+-------------+
 
 
 Tests

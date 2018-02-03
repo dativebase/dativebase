@@ -1,5 +1,4 @@
-[submodule "old"]
+[submodule "src/old"]
 	path = src/old
 	url = https://github.com/dativebase/old-pyramid
 	branch = dev/issue-docker-deploy
-

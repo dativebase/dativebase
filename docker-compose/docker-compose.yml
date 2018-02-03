@@ -22,15 +22,15 @@ services:
 
   mysql:
     image: "percona:5.6"
-    user: "old"
+    user: "mysql"
     environment:
-      MYSQL_ROOT_PASSWORD: "demo"
+      MYSQL_ROOT_PASSWORD: "12345"
     volumes:
       - "mysql_data:/var/lib/mysql"
     expose:
       - "3306"
     ports:
-      - "62001:3306"
+      - "61001:3306"
 
   nginx:
     image: "nginx:stable-alpine"
@@ -41,7 +41,9 @@ services:
     expose:
       - "8000"
     ports:
-      - "62081:8000"
+      - "61081:8000"
+    links:
+      - "old"
 
   old:
     build:
@@ -56,10 +58,12 @@ services:
         OLD_NAME_TESTS: "oldtests"
         OLD_PERMANENT_STORE: "/var/old/store"
         OLD_SESSION_LOCK_DIR: "/var/old/data/sessions/lock"
-        OLD_PORT: "6543"
+        OLD_PORT: "8000"
     volumes:
       - "dativebase_old_store:/var/old/store:rw"
     expose:
       - "8000"
-    depends_on:
-      - mysql
+    ports:
+        - "61082:8000"
+    links:
+      - "mysql"

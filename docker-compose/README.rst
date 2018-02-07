@@ -184,7 +184,7 @@ Optionally you may also want to delete the directories on the host::
     $ rm -rf /tmp/dativebase-old-store
 
 
-.. _`these insructions`: https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/
+.. _`these instructions`: https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/
 .. _`Docker Compose`: https://docs.docker.com/compose/reference/overview/
 .. _`docker daemon attack surface`: https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface
 .. _`reload`: https://docs.pylonsproject.org/projects/pyramid/en/latest/pscripts/pserve.html#cmdoption-pserve-reload

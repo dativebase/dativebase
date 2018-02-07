@@ -57,11 +57,29 @@ Run these commands when starting from scratch::
     $ make bootstrap
     $ make restart-dativebase-services
 
+If all goes well, the above should result in Dative and an OLD instance being
+served at the following URLs:
+
+- Dative http://127.0.0.1:61080/
+- OLD http://127.0.0.1:61081/old/
+
 The ``make create-volumes`` command will create an external volume so that the
 host machine can access the OLD store/ directory where user files (e.g., audio)
 are stored.
 
 - ``/tmp/dativebase-old-store``---the OLD store/ directory.
+
+If you upload files to the OLD instance (using the Dative GUI), you should be
+able to see them on the host at /tmp/dativebase-old-store/old/files/.
+
+The `make bootstrap` command creates the database `'old'`, creates the tables
+in that database, adds some defaults (e.g., users), and creates the directory
+structure in /tmp/dativebase-old-store/old/.
+
+To login to your old instance from Dative, navigate to
+http://127.0.0.1:61080/#application-settings, click on the "Servers" button,
+and create a server with URL value `http://127.0.0.1:61081/old`. Then you
+should be able to sign in with user `admin` and password `adminA_1`.
 
 
 GNU make
@@ -71,12 +89,6 @@ Make commands above, and any subsequent calls to it below can be reviewed using
 the following command from the compose directory::
 
     $ make help
-
-
-Web UIs
-================================================================================
-
-- Dative: http://127.0.0.1:61080/
 
 
 Source code auto-reloading
@@ -134,9 +146,11 @@ Ports
 +=========================================+================+=============+
 | mysql                                   | `tcp/3306`     | `tcp/61001` |
 +-----------------------------------------+----------------+-------------+
-| nginx > OLD                             | `tcp/80`       | `tcp/61080` |
+| nginx > OLD                             | `tcp/8000`     | `tcp/61081` |
 +-----------------------------------------+----------------+-------------+
-| nginx > Dative                          | `tcp/8000`     | `tcp/61081` |
+| OLD                                     | `tcp/8000`     | `tcp/61082` |
++-----------------------------------------+----------------+-------------+
+| Dative                                  | `tcp/9000`     | `tcp/61080` |
 +-----------------------------------------+----------------+-------------+
 
 

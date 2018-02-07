@@ -64,6 +64,15 @@ services:
     expose:
       - "8000"
     ports:
-        - "61082:8000"
+      - "61082:8000"
     links:
       - "mysql"
+
+  dative:
+    build:
+      context: "../src/dative"
+      dockerfile: "Dockerfile"
+    expose:
+      - "9000"
+    ports:
+      - "61080:9000"

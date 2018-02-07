@@ -2,3 +2,7 @@
 	path = src/old
 	url = https://github.com/dativebase/old-pyramid
 	branch = dev/issue-docker-deploy
+[submodule "src/dative"]
+	path = src/dative
+	url = https://github.com/dativebase/dative.git
+	branch = dev/issue-321-create-docker-file

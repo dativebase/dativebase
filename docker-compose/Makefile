@@ -11,6 +11,17 @@ create-volumes:  ## Create external data volumes.
 		--opt device=$(OLD_STORE) \
 			dativebase-old-store
 
+create-old-instance:
+	docker-compose exec mysql mysql -hlocalhost -uroot -p12345 -e "\
+		DROP DATABASE IF EXISTS $(OLD_NAME); \
+		CREATE DATABASE $(OLD_NAME) DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_bin; \
+		GRANT ALL ON $(OLD_NAME).* TO 'old'@'%' IDENTIFIED BY 'demo';"
+	docker-compose run \
+		--rm \
+		--entrypoint /venv/bin/initialize_old \
+			old \
+				/usr/src/old/config.ini $(OLD_NAME)
+
 bootstrap: bootstrap-old  ## Full bootstrap.
 
 bootstrap-old:  ## Boostrap OLD (new database).
@@ -36,7 +47,7 @@ restart-dativebase-services:  ## Restart DativeBase services: OLD.
 	docker-compose restart old
 
 db:  ## Connect to the MySQL server using the CLI.
-	mysql -h127.0.0.1 --port=61001 -uroot -p12345
+	mysql -h127.0.0.1 --port=61002 -uroot -p12345
 
 flush: flush-shared-dir bootstrap restart-dativebase-services  ## Delete ALL user data.
 

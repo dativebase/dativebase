@@ -1,5 +1,5 @@
 ================================================================================
-  DativeBase = Dative + OLD on Docker Compose
+  Docker Compose DativeBase Deploy
 ================================================================================
 
 .. contents::
@@ -9,8 +9,10 @@ Audience
 ================================================================================
 
 This DativeBase environment is based on `Docker Compose`_ and is specifically
-**designed for developers**. Compose can be used in a production environment
-but that is beyond the scope of this recipe.
+designed to make it easy for **developers** to quickly and reliably deploy
+`Dative`_ and the `Online Linguistic Database`_ in a local development
+environment. Compose can be used in a production environment but that is beyond
+the scope of this recipe.
 
 
 Requirements
@@ -32,14 +34,14 @@ Install Docker Community Edition (CE) following `these instructions`_.
 Docker and Linux
 --------------------------------------------------------------------------------
 
-To use Docker on Linux as a non-root user, add your user to the "docker" group
+To use Docker on Linux as a non-root user, add your user to the ``docker`` group
 with something like::
 
     $ sudo usermod -aG docker <user>
 
 Remember that you will have to log out and back in for this to take effect.
 
-.. warning:: Adding a user to the "docker" group will grant the ability to run
+.. warning:: Adding a user to the ``docker`` group will grant the ability to run
    containers which can be used to obtain root privileges on the docker host.
    Refer to `docker daemon attack surface`_ for more information.
 
@@ -60,26 +62,24 @@ Run these commands when starting from scratch::
 If all goes well, the above should result in Dative and an OLD instance being
 served at the following URLs:
 
-- Dative http://127.0.0.1:61080/
-- OLD http://127.0.0.1:61081/old/
+- Dative http://127.0.0.1:61000/
+- OLD http://127.0.0.1:61001/old/
 
 The ``make create-volumes`` command will create an external volume so that the
 host machine can access the OLD store/ directory where user files (e.g., audio)
 are stored.
 
-- ``/tmp/dativebase-old-store``---the OLD store/ directory.
-
 If you upload files to the OLD instance (using the Dative GUI), you should be
 able to see them on the host at /tmp/dativebase-old-store/old/files/.
 
-The `make bootstrap` command creates the database `'old'`, creates the tables
-in that database, adds some defaults (e.g., users), and creates the directory
-structure in /tmp/dativebase-old-store/old/.
+The ``make bootstrap`` command creates the database ``'old'``, creates the
+tables in that database, adds some defaults (e.g., users), and creates the
+needed directory structure in /tmp/dativebase-old-store/old/.
 
 To login to your old instance from Dative, navigate to
-http://127.0.0.1:61080/#application-settings, click on the "Servers" button,
-and create a server with URL value `http://127.0.0.1:61081/old`. Then you
-should be able to sign in with user `admin` and password `adminA_1`.
+http://127.0.0.1:61080/#application-settings, click on the *Servers* button,
+and create a server with URL value ``http://127.0.0.1:61081/old``. Then you
+should be able to sign in with user ``admin`` and password ``adminA_1``.
 
 
 GNU make
@@ -91,18 +91,33 @@ the following command from the compose directory::
     $ make help
 
 
+Create OLD Instances
+--------------------------------------------------------------------------------
+
+An OLD instance is identified by its name and its state (user data) is stored
+as a MySQL database of the same name and a directory in
+/tmp/dativebase-old-store/ of the same name. To create a new OLD instance,
+e.g., with name ``old2``::
+
+    $ make create-old-instance OLD_NAME=old2
+
+
 Source code auto-reloading
 ================================================================================
+
+The source code for Dative and the OLD is at ``../src/dative/`` and
+``../src/old/,`` respectively.
 
 The OLD is served by pserve and Waitress. We set up pserve with the `reload`_
 setting enabled, meaning that the Waitress server will be restarted as soon as
 code changes.
 
-.. note:: What about audo-reloading of Dative?
+Dative does not currently automatically reload when its source code is changed.
+This is due to some unanticipated issue with grunt's auto-reloading and Docker.
 
-To manually restart a component::
+To manually restart a component (in this case Dative)::
 
-    $ docker-compose up -d --force-recreate --no-deps old
+    $ docker-compose up -d --force-recreate --no-deps dative
 
 If you have added new dependencies or changes to the ``Dockerfile`` you should
 also add the ``--build`` argument to the previous command in order to ensure
@@ -141,17 +156,19 @@ This would give us one service but three containers.
 Ports
 ================================================================================
 
-+-----------------------------------------+----------------+-------------+
-| Service                                 | Container port | Host port   |
-+=========================================+================+=============+
-| mysql                                   | `tcp/3306`     | `tcp/61001` |
-+-----------------------------------------+----------------+-------------+
-| nginx > OLD                             | `tcp/8000`     | `tcp/61081` |
-+-----------------------------------------+----------------+-------------+
-| OLD                                     | `tcp/8000`     | `tcp/61082` |
-+-----------------------------------------+----------------+-------------+
-| Dative                                  | `tcp/9000`     | `tcp/61080` |
-+-----------------------------------------+----------------+-------------+
++-----------------------------------------+----------------+---------------+
+| Service                                 | Container port | Host port     |
++=========================================+================+===============+
+| nginx > Dative                          | ``tcp/80``     | ``tcp/61000`` |
++-----------------------------------------+----------------+---------------+
+| nginx > OLD                             | ``tcp/8000``   | ``tcp/61001`` |
++-----------------------------------------+----------------+---------------+
+| OLD                                     | ``tcp/8000``   | ``tcp/61081`` |
++-----------------------------------------+----------------+---------------+
+| Dative                                  | ``tcp/9000``   | ``tcp/61080`` |
++-----------------------------------------+----------------+---------------+
+| mysql                                   | ``tcp/3306``   | ``tcp/61002`` |
++-----------------------------------------+----------------+---------------+
 
 
 Tests
@@ -202,3 +219,5 @@ Optionally you may also want to delete the directories on the host::
 .. _`Docker Compose`: https://docs.docker.com/compose/reference/overview/
 .. _`docker daemon attack surface`: https://docs.docker.com/engine/security/security/#docker-daemon-attack-surface
 .. _`reload`: https://docs.pylonsproject.org/projects/pyramid/en/latest/pscripts/pserve.html#cmdoption-pserve-reload
+.. _`Dative`: https://github.com/dativebase/dative
+.. _`Online Linguistic Database`: https://github.com/dativebase/old-pyramid

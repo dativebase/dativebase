@@ -57,7 +57,10 @@ flush-shared-dir:  ## Delete contents of the shared directory data volume.
 test-all: test-old  ## Run all tests.
 
 test-old: bootstrap-old-tests  ## Run OLD tests.
-	/usr/src/old/test.sh
+	docker-compose exec old env OLD_NAME_TESTS=oldtests \
+		OLD_PERMANENT_STORE=/var/old/store \
+		OLD_TESTING=1 \
+		/venv/bin/pytest /usr/src/old/old/tests/ -v
 
 help:  ## Print this help message.
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

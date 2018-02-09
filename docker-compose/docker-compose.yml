@@ -71,6 +71,7 @@ services:
         OLD_PERMANENT_STORE: "/var/old/store"
         OLD_SESSION_LOCK_DIR: "/var/old/data/sessions/lock"
         OLD_PORT: "8000"
+        OLD_PASSWORD_RESET_SMTP_SERVER: "10.0.0.1"
     volumes:
       - "../src/old/:/usr/src/old/"
       - "dativebase_old_store:/var/old/store:rw"

@@ -75,6 +75,7 @@ services:
     volumes:
       - "../src/old/:/usr/src/old/"
       - "dativebase_old_store:/var/old/store:rw"
+    command: ["/venv/bin/pserve", "--reload", "config.ini", "http_port=8000", "http_host=0.0.0.0"]
     expose:
       - "8000"
     ports:

@@ -1,7 +1,7 @@
 [submodule "src/old"]
 	path = src/old
 	url = https://github.com/dativebase/old-pyramid
-	branch = dev/issue-docker-deploy
+	branch = dev/issue-13-add-rst-docs
 [submodule "src/dative"]
 	path = src/dative
 	url = https://github.com/dativebase/dative.git

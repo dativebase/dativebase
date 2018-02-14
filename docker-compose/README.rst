@@ -174,9 +174,9 @@ Ports
 Tests
 ================================================================================
 
-The ``Makefile`` includes many useful targets for testing. List them all with::
+To run the OLD tests::
 
-    $ make 2>&1 | grep test
+    $ make test-old
 
 
 Resetting the Environment

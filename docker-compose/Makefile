@@ -35,11 +35,15 @@ bootstrap-old:  ## Boostrap OLD (new database).
 			old \
 				/usr/src/old/config.ini old
 
-bootstrap-old-tests:  ## Boostrap OLD for tests (new database for tests).
+bootstrap-old-tests:  ## Boostrap OLD for tests (new databases for tests).
 	docker-compose exec mysql mysql -hlocalhost -uroot -p12345 -e "\
 		DROP DATABASE IF EXISTS oldtests; \
 		CREATE DATABASE oldtests DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_bin; \
 		GRANT ALL ON oldtests.* TO 'old'@'%' IDENTIFIED BY 'demo';"
+	docker-compose exec mysql mysql -hlocalhost -uroot -p12345 -e "\
+		DROP DATABASE IF EXISTS oldtests2; \
+		CREATE DATABASE oldtests2 DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_bin; \
+		GRANT ALL ON oldtests2.* TO 'old'@'%' IDENTIFIED BY 'demo';"
 
 restart-dativebase-services:  ## Restart DativeBase services: OLD.
 	docker-compose restart mysql
@@ -58,6 +62,7 @@ test-all: test-old  ## Run all tests.
 
 test-old: bootstrap-old-tests  ## Run OLD tests.
 	docker-compose exec old env OLD_NAME_TESTS=oldtests \
+		OLD_NAME_2_TESTS=oldtests2 \
 		OLD_PERMANENT_STORE=/var/old/store \
 		OLD_TESTING=1 \
 		/venv/bin/pytest /usr/src/old/old/tests/ -v

@@ -22,6 +22,14 @@ create-old-instance:
 			old \
 				/usr/src/old/config.ini $(OLD_NAME)
 
+# make load-old-instance-dump OLD_NAME=blaold DUMP_PATH=/Users/joeldunham/LambdaBar/Contracts/DAILP-2018/blaold-db-dump-2018-08-22.sql
+# # Restore
+# cat backup.sql | docker exec -i CONTAINER /usr/bin/mysql -u root --password=root DATABASE
+load-old-instance-dump:
+	docker-compose exec mysql mysql -hlocalhost -uroot -p12345 -e "\
+		DROP DATABASE IF EXISTS $(OLD_NAME); \
+		CREATE DATABASE $(OLD_NAME) DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_bin;"
+
 bootstrap: bootstrap-old  ## Full bootstrap.
 
 bootstrap-old:  ## Boostrap OLD (new database).

@@ -1,0 +1,15 @@
+{
+    "dativebase_ip": "127.0.0.1",
+    "dativebase_old_port": "5679",
+    "dativebase_old_src": "src/old",
+    "dativebase_dative_src": "src/dative",
+    "dativebase_dative_servers_rel": "dist/servers.json",
+    "dativebase_dative_servers": "<dativebase_dative_src>/<dativebase_dative_servers_rel>",
+    "old_db_rdbms": "sqlite",
+    "old_session_type": "file",
+    "old_permanent_store": "<CWD>/oldinstances",
+    "old_db_dirpath": "<old_permanent_store>/dbs",
+    "dflt_dativebase_old_name": "myold",
+    "dflt_dativebase_old_dir_path": "<old_permanent_store>/<dflt_dativebase_old_name>",
+    "dflt_dativebase_old_db_path": "<old_db_dirpath>/<dflt_dativebase_old_name>.sqlite"
+}

@@ -11,7 +11,7 @@ create-volumes:  ## Create external data volumes.
 		--opt device=$(OLD_STORE) \
 			dativebase-old-store
 
-create-old-instance:
+create-old-instance:  ## Create a new OLD instance with database name OLD_NAME.
 	docker-compose exec mysql mysql -hlocalhost -uroot -p12345 -e "\
 		DROP DATABASE IF EXISTS $(OLD_NAME); \
 		CREATE DATABASE $(OLD_NAME) DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_bin; \
@@ -74,6 +74,17 @@ test-old: bootstrap-old-tests  ## Run OLD tests.
 		OLD_PERMANENT_STORE=/var/old/store \
 		OLD_TESTING=1 \
 		/venv/bin/pytest /usr/src/old/old/tests/ -v
+
+lint-old:  ## Run the Pylint linter on the OLD source.
+	docker-compose exec old /venv/bin/pylint /usr/src/old/old
+
+monitor:  ## Open four tmux panes
+	tmux new-session \; \
+		send-keys 'docker-compose ps' C-m \; \
+		split-window -h \; \
+		send-keys 'make db' C-m \; \
+		split-window -v \; \
+		send-keys 'make' C-m \;
 
 help:  ## Print this help message.
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

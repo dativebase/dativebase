@@ -51,12 +51,38 @@ Remember that you will have to log out and back in for this to take effect.
 Installation
 ================================================================================
 
-Run these commands when starting from scratch::
+First clone the source and move into the directory created::
+
+    $ git clone https://github.com/dativebase/dativebase.git
+    $ cd dativebase
+
+Then clone the Dative and OLD submodules under ``src/``::
 
     $ git submodule update --init --recursive
+
+Now create a Docker volume shared with your host machine at
+``/tmp/dativebase-old-store/`` so that you can view your uploaded OLD files
+(e.g., audio recordings) at that directory::
+
+    $ cd docker-compose
     $ make create-volumes
+
+Build the Docker containers running Dative, the OLD, MySQL and Nginx (see
+``docker-compose/docker-compose.yml`` for the specific configuration of these
+services)::
+
     $ docker-compose up -d --build
+
+Initialize a new OLD instance named "old". This means creating a MySQL database
+named ``old`` running in the ``mysql`` container that has all of the OLD table
+schemas defined within it. This also means creating the directory structure to
+hold the audio (and other) files for this OLD; see
+``/tmp/dativebase-old-store/old/``::
+
     $ make bootstrap
+
+Now restart the services::
+
     $ make restart-dativebase-services
 
 If all goes well, the above should result in Dative and an OLD instance being
@@ -65,29 +91,23 @@ served at the following URLs:
 - Dative http://127.0.0.1:61000/
 - OLD http://127.0.0.1:61001/old/
 
-The ``make create-volumes`` command will create an external volume so that the
-host machine can access the OLD store/ directory where user files (e.g., audio)
-are stored.
-
-If you upload files to the OLD instance (using the Dative GUI), you should be
-able to see them on the host at /tmp/dativebase-old-store/old/files/.
-
-The ``make bootstrap`` command creates the database ``'old'``, creates the
-tables in that database, adds some defaults (e.g., users), and creates the
-needed directory structure in /tmp/dativebase-old-store/old/.
-
-To login to your old instance from Dative, navigate to
-http://127.0.0.1:61080/#application-settings, click on the *Servers* button,
-and create a server with URL value ``http://127.0.0.1:61081/old``. Then you
-should be able to sign in with user ``admin`` and password ``adminA_1``.
+To login to your old instance from Dative, navigate to Dative at
+http://127.0.0.1:61000/, click on Dative, then Application Settings, then click
+on the *Servers* button, and create a server with URL value
+``http://127.0.0.1:61001/old`` and a name like ``Local OLD``. Now you
+should be able to sign in to this OLD instance by clicking on the lock icon in
+the top right, selecting ``Local OLD`` as the server value and entering usename
+``admin`` and password ``adminA_1``.
 
 
 GNU make
 --------------------------------------------------------------------------------
 
 Make commands above, and any subsequent calls to it below can be reviewed using
-the following command from the compose directory::
+the following command from the ``docker-compose/`` directory::
 
+    $ pwd
+    dativebase/docker-compose
     $ make help
 
 
@@ -96,7 +116,7 @@ Create OLD Instances
 
 An OLD instance is identified by its name and its state (user data) is stored
 as a MySQL database of the same name and a directory in
-/tmp/dativebase-old-store/ of the same name. To create a new OLD instance,
+``/tmp/dativebase-old-store/`` of the same name. To create a new OLD instance,
 e.g., with name ``old2``::
 
     $ make create-old-instance OLD_NAME=old2

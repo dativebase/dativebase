@@ -67,6 +67,15 @@ test-old: bootstrap-old-tests  ## Run OLD tests.
 		OLD_TESTING=1 \
 		/venv/bin/pytest /usr/src/old/old/tests/ -v
 
+test-old-part: bootstrap-old-tests  ## Run Particular OLD tests.
+	docker-compose exec old env OLD_NAME_TESTS=oldtests \
+		OLD_NAME_2_TESTS=oldtests2 \
+		OLD_PERMANENT_STORE=/var/old/store \
+		OLD_TESTING=1 \
+		OLD_SESSION_TYPE=file \
+		SMTP_SERVER_ABSENT=1 \
+		/venv/bin/pytest /usr/src/old/$(part) -v -s -x
+
 help:  ## Print this help message.
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 

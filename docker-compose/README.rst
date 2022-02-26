@@ -198,6 +198,10 @@ To run the OLD tests::
 
     $ make test-old
 
+To run specific OLD tests::
+
+    $ part=old/tests/functional/test_multiple_olds.py make test-old-part
+
 
 Resetting the Environment
 ================================================================================

@@ -72,7 +72,6 @@ test-old-part: bootstrap-old-tests  ## Run Particular OLD tests.
 		OLD_NAME_2_TESTS=oldtests2 \
 		OLD_PERMANENT_STORE=/var/old/store \
 		OLD_TESTING=1 \
-		OLD_SESSION_TYPE=file \
 		SMTP_SERVER_ABSENT=1 \
 		/venv/bin/pytest /usr/src/old/$(part) -v -s -x
 

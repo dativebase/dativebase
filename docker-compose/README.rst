@@ -51,6 +51,10 @@ Remember that you will have to log out and back in for this to take effect.
 Installation
 ================================================================================
 
+
+Download the Source
+--------------------------------------------------------------------------------
+
 First clone the source and move into the directory created::
 
     $ git clone https://github.com/dativebase/dativebase.git
@@ -59,6 +63,107 @@ First clone the source and move into the directory created::
 Then clone the Dative and OLD submodules under ``src/``::
 
     $ git submodule update --init --recursive
+
+
+Prepare to Serve Dative and the OLD Locally via HTTPS
+--------------------------------------------------------------------------------
+
+DativeBase assumes you are running all of the services locally over HTTPS. This
+is necessary so that local development can emulate production as much as
+possible. The production deployment serves Dative and the OLD from different
+domains, so cross-origin requests are inherent to this setup. Because of recent
+security restrictions around cross-site cookies, we must set the ``SameSite``
+cookie attribute to ``'None'`` and enable the ``Secure`` flag on the cookies
+created by the OLD. This requires using HTTPS. In order to make all of this work
+locally, we need to create some local SSL certificate files and modify our
+``/etc/hosts`` file so that Dative and the OLD are served from specific URLs.
+This section contains instructions on how to do that.
+
+First, modify your ``/etc/hosts`` file so that it contains the following two
+lines. You will probably need administrator privileges on your machine
+(``sudo``) in order to do this::
+
+  $ cat /etc/hosts
+  127.0.0.1 app.dative.dev
+  127.0.0.1 old.dative.dev
+
+Now we need to generate our SSL certificates for local development. To do this I
+followed the guides at:
+
+- https://www.freecodecamp.org/news/how-to-get-https-working-on-your-local-development-environment-in-5-minutes-7af615770eec/
+- https://imagineer.in/blog/https-on-localhost-with-nginx/
+
+To begin, move into the ``certs/`` directory::
+
+  $ pwd
+  dativebase/docker-compose/etc/nginx/certs
+
+
+Step 1: Root SSL certificate
+````````````````````````````````````````````````````````````````````````````````
+
+Generate a RSA-2048 key and save it to a file rootCA.key::
+
+  $ openssl genrsa -des3 -out rootCA.key 2048
+
+Write down the passphrase that you used when prompted by the above!
+
+If the above worked, we should have generated a ``rootCA.key`` file.
+
+Use the key file generated to create a new Root SSL certificate and save it to a
+file named ``rootCA.pem``. This certificate will have a validity of 1,024 days.
+Feel free to change it to any number of days you want::
+
+  $ openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 1024 -out rootCA.pem
+
+I believe you may use any values you want in the prompts that result from
+running the above command. One thing that may be important is to use the
+``Common Name`` value ``*.dative.dev``::
+
+  Common Name (eg, fully qualified host name) []: *.dative.dev
+
+
+Step 2: Trust the root SSL certificate
+````````````````````````````````````````````````````````````````````````````````
+
+Before you can use the newly created Root SSL certificate to start issuing
+domain certificates, you must tell your development machine to trust your root
+certificate so that all individual certificates issued by it are also trusted.
+
+To do this on a Mac, open Keychain Access and go to the Certificates category in
+your System keychain. Once there, import the rootCA.pem using File > Import
+Items. Double click the imported certificate and change the ``When using this
+certificate:`` dropdown to ``Always Trust`` in the Trust section.
+
+
+Step 3: Domain SSL certificate
+````````````````````````````````````````````````````````````````````````````````
+
+There are already two files in ``dativebase/docker-compose/etc/nginx/certs/``
+that will be useful to us when creating our X509 v3 certificate:
+``server.csr.cnf`` and ``v3.ext``.
+
+Create a certificate key for all subdomains under ``dative.dev`` using the
+configuration settings stored in ``server.csr.cnf``. The key file produced as a
+result will be ``server.key``::
+
+  $ openssl req -new -sha256 -nodes -out server.csr -newkey rsa:2048 -keyout server.key -config <( cat server.csr.cnf )
+
+If you are using the fish shell, use the following alternate syntax::
+
+  $ openssl req -new -sha256 -nodes -out server.csr -newkey rsa:2048 -keyout server.key -config ( cat server.csr.cnf | psub)
+
+Now create the server.crt file::
+
+  $ openssl x509 -req -in server.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out server.crt -days 500 -sha256 -extfile v3.ext
+
+If the above worked, we should have ``server.key`` and ``server.crt``. These
+files are used by the Nginx HTTPS configuration file at
+``docker-compose/etc/nginx/conf.d/dativebasehttps.conf``.
+
+
+Bring up the DativeBase Docker Containers
+--------------------------------------------------------------------------------
 
 Now create a Docker volume shared with your host machine at
 ``/tmp/dativebase-old-store/`` so that you can view your uploaded OLD files
@@ -86,25 +191,25 @@ Now restart the services::
     $ make restart-dativebase-services
 
 If all goes well, the above should result in Dative and an OLD instance being
-served at the following URLs:
+served at the following HTTPS URLs:
 
-- Dative http://127.0.0.1:61000/
-- OLD http://127.0.0.1:61001/old/
+- Dative https://app.dative.dev:61000/
+- OLD https://old.dative.dev:61001/old/
 
 To login to your old instance from Dative, navigate to Dative at
-http://127.0.0.1:61000/, click on Dative, then Application Settings, then click
-on the *Servers* button, and create a server with URL value
-``http://127.0.0.1:61001/old`` and a name like ``Local OLD``. Now you
+https://app.dative.dev:61000/, click on Dative, then Application Settings, then
+click on the *Servers* button, and create a server with URL value
+``https://old.dative.dev:61001/old`` and a name like ``Local OLD``. Now you
 should be able to sign in to this OLD instance by clicking on the lock icon in
-the top right, selecting ``Local OLD`` as the server value and entering usename
+the top right, selecting ``Local OLD`` as the server value and entering username
 ``admin`` and password ``adminA_1``.
 
 
 GNU make
 --------------------------------------------------------------------------------
 
-Make commands above, and any subsequent calls to it below can be reviewed using
-the following command from the ``docker-compose/`` directory::
+The documentation for the ``docker-compose/Makefile`` can be viewed by calling
+``make help`` or just ``make``::
 
     $ pwd
     dativebase/docker-compose
@@ -198,7 +303,8 @@ To run the OLD tests::
 
     $ make test-old
 
-To run specific OLD tests::
+To run specific OLD tests, in this example those in the ``test_multiple_olds``
+module::
 
     $ part=old/tests/functional/test_multiple_olds.py make test-old-part
 

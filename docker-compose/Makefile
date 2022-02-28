@@ -65,6 +65,7 @@ test-old: bootstrap-old-tests  ## Run OLD tests.
 		OLD_NAME_2_TESTS=oldtests2 \
 		OLD_PERMANENT_STORE=/var/old/store \
 		OLD_TESTING=1 \
+		OLD_SESSION_SECURE=0 \
 		/venv/bin/pytest /usr/src/old/old/tests/ -v
 
 test-old-part: bootstrap-old-tests  ## Run Particular OLD tests.
@@ -72,6 +73,7 @@ test-old-part: bootstrap-old-tests  ## Run Particular OLD tests.
 		OLD_NAME_2_TESTS=oldtests2 \
 		OLD_PERMANENT_STORE=/var/old/store \
 		OLD_TESTING=1 \
+		OLD_SESSION_SECURE=0 \
 		SMTP_SERVER_ABSENT=1 \
 		/venv/bin/pytest /usr/src/old/$(part) -v -s -x
 

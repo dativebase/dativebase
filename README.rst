@@ -5,11 +5,14 @@
 DativeBase is the entrypoint for Dative/OLD: software for collaborative
 language documentation and analysis.
 
-This repository is the hub for deployment strategies for Dative and the OLD. At
-present, it contains a `Docker Compose`_ deployment configuration in the
-docker-compose/ folder. See the `docker-compose/README.rst file`_.
+This repository is the hub for deployment strategies for Dative and the OLD. It
+contains two `Docker Compose`_ configurations for local deployments.
+
+1. `HTTP Deploy`_ (recommended)
+2. `HTTPS Deploy`_ (error-prone but more like production)
 
 .. _`Dative`: https://github.com/dativebase/dative
 .. _`Online Linguistic Database`: https://github.com/dativebase/old-pyramid
-.. _`docker-compose/README.rst file`: docker-compose/README.rst
+.. _`HTTP Deploy`: docker-compose-http/README.rst
+.. _`HTTPS Deploy`: docker-compose/README.rst
 .. _`Docker Compose`: https://docs.docker.com/compose/overview/
